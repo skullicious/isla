@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, EMPTY, first, tap } from 'rxjs';
 import { EntriesService } from '../../../../src/app/shared/services/entries.service';
 import { IslaEntry } from '../../../../src/app/shared/types/IslaEntry';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-entry-form',
@@ -62,10 +63,14 @@ export class EntryFormComponent implements OnInit {
     return this.form.controls[fieldName].errors?.['required'] === true;
   }
 
-  validateFields(formGroup: FormGroup): void {
-    Object.keys(formGroup).forEach((field) => {
-      const control = this.form.get(field);
-      control?.markAsTouched({ onlySelf: true });
+  validateFields(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(field => {  //fixed flaky submit
+      const control = formGroup.get(field);
+      if (control instanceof FormControl) {
+        control.markAsTouched({ onlySelf: true });
+      } else if (control instanceof FormGroup) {
+        this.validateFields(control);      
+      }
     });
   }
 
