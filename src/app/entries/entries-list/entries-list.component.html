@@ -1,0 +1,29 @@
+
+<ng-container *ngIf="data$ | async as sortedEntries">
+  <div class="button-container">
+    <button
+      mat-fab
+      color="accent"
+      aria-label="Create a new entry"
+      [routerLink]="'create'"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <table matSort (matSortChange)="sortData($event)">
+    <tr>    
+      <th mat-sort-header="title">Title</th>
+      <th mat-sort-header="description">Description</th>
+      <th mat-sort-header="createdAt">Created at:</th>
+      <th mat-sort-header="updatedAt">Updated at</th>
+    </tr>
+  
+    <tr *ngFor="let entry of sortedEntries" (click)="goToEntryDetail(entry.id)">  
+      <td>{{entry.title}}</td>
+      <td>{{entry.description | slice: 0:100 }}</td>
+      <td>{{entry.createdAt | date: "dd/MM/YYYY hh:mm a"}}</td>
+      <td>{{entry.updatedAt | date: "dd/MM/YYYY hh:mm a"}}</td>     
+    </tr>
+  </table>
+</ng-container>

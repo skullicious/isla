@@ -1,0 +1,32 @@
+mat-card {
+  width: 40%;
+  margin-left: auto;
+  margin-right: auto;  //center div trick
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+.isla-form-container {
+  padding-top: 10%;
+}
+
+//these are to control the padding around the mat-form-field components when error messages are popping in and out - probably a slicker way of doing it.
+
+.isla-inline-validation-error {
+  color: #f44336;
+  padding-bottom: 1.34375em;
+}
+
+.isla-field-padder {
+  padding-bottom: 1.34375em;  
+}
+
+mat-form-field {
+      ::ng-deep .mat-form-field-wrapper {     //not mad about using ng::deep - i know being deprecated but i think safer than disabling view encapsulation .. I targetted AFTER parent to limit scope
+    padding-bottom: 0;
+  }
+}
+

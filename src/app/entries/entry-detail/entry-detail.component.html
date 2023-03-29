@@ -1,0 +1,24 @@
+<ng-container *ngIf="entry$ | async as entry">
+  <mat-card class="example-card">
+    <button mat-raised-button color="primary" type="submit" (click)="editEntry(entry)">Edit</button>
+    <mat-card-header>
+      <div mat-card-avatar class="example-header-image"></div>
+      <mat-card-title>{{ entry.title }}</mat-card-title>
+      <mat-card-subtitle>{{
+        entry.createdAt | date: "dd/MM/YYYY hh:mm a"
+      }}</mat-card-subtitle>
+      <mat-card-subtitle>{{
+        entry.updatedAt | date: "dd/MM/YYYY hh:mm a"
+      }}</mat-card-subtitle>
+    </mat-card-header>
+    <img
+      mat-card-image
+      src="https://material.angular.io/assets/img/examples/shiba2.jpg"  
+      alt="Photo of a Shiba Inu"
+    />
+    <mat-card-content>
+      <p>{{ entry.description }}</p>
+    </mat-card-content>
+    <mat-card-actions> </mat-card-actions>
+  </mat-card>
+</ng-container>
