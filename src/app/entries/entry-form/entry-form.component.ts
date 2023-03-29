@@ -62,12 +62,16 @@ export class EntryFormComponent implements OnInit {
     return this.form.controls[fieldName].errors?.['required'] === true;
   }
 
-  validateFields(formGroup: FormGroup): void {
-    Object.keys(formGroup).forEach((field) => {
-      const control = this.form.get(field);
-      control?.markAsTouched({ onlySelf: true });
-    });
-  }
+  validateFields(formGroup: FormGroup) {
+  Object.keys(formGroup.controls).forEach(field => {  //fixed flaky submit
+    const control = formGroup.get(field);
+    if (control instanceof FormControl) {
+      control.markAsTouched({ onlySelf: true });
+    } else if (control instanceof FormGroup) {
+      this.validateFields(control);      
+    }
+  });
+}
 
   submit() {
     //https://loiane.com/2017/08/angular-reactive-forms-trigger-validation-on-submit/
