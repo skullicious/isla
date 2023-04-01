@@ -12,11 +12,7 @@ const routes: Routes = [
     path: '',
     redirectTo: 'entries',
     pathMatch: 'full',
-  },
-  {
-    path: 'entries/create/:id',    //passing in an id for the params inside component so we can reuse
-    component: EntryFormComponent  
-  },
+  }
 ];
 
 @NgModule({

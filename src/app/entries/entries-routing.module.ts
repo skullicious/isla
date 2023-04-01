@@ -8,6 +8,10 @@ const routes: Routes = [
   { path: '', component: EntriesListComponent },
   { path: 'create', component: EntryFormComponent },
   { path: ':id', component: EntryDetailComponent },
+  {
+    path: 'create/:id',    //passing in an id for the params inside component so we can reuse
+    component: EntryFormComponent  
+  },
 ];
 
 @NgModule({
