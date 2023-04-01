@@ -1,18 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, EMPTY, first, tap } from 'rxjs';
+import { catchError, EMPTY, first, Subscription} from 'rxjs';
 import { EntriesService } from '../../../../src/app/shared/services/entries.service';
 import { IslaEntry } from '../../../../src/app/shared/types/IslaEntry';
-import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-entry-form',
   templateUrl: './entry-form.component.html',
   styleUrls: ['./entry-form.component.scss'],
 })
-export class EntryFormComponent implements OnInit {
+export class EntryFormComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   errorMsg: string = '';
 
@@ -23,12 +23,18 @@ export class EntryFormComponent implements OnInit {
 
   options = this.route.snapshot.params['id']; //if there is an id being passed we are editing
 
+  private subscriptions: Subscription[] = [];
+
   constructor(
     private fb: FormBuilder,
     private entries: EntriesService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
 
   ngOnInit(): void {
     this.id = this.route.snapshot.params['id'];
@@ -41,13 +47,14 @@ export class EntryFormComponent implements OnInit {
 
     if (!this.isNew && this.id) {
       //if in edit mode we are going to use the getEntry by id observable
-      this.entries
+      const sub = this.entries
         .getEntryById$(this.id) // and populate the data
         .pipe(first())
         .subscribe((islaEntry) => {
           this.islaEntryToEdit = islaEntry;
           return this.form.patchValue(islaEntry);
         });
+      this.subscriptions.push(sub);
     }
   }
 
@@ -78,18 +85,20 @@ export class EntryFormComponent implements OnInit {
     //https://loiane.com/2017/08/angular-reactive-forms-trigger-validation-on-submit/
 
     if (this.form.valid) {
-      let createdEntity = '';
+      let entityId = '';
 
       if (this.isNew) {
         //If new, add the item as normal
-        this.entries
+        const sub = this.entries
           .createEntry$(this.form.value)
           .pipe(
             catchError((err) => {
               this.errorMsg = err; //pass to error msg svc or maybe a banner on page?
               return EMPTY;
             })
-          ).subscribe();
+          ).subscribe(entity => entityId = entity);
+
+        this.subscriptions.push(sub);
       } else {
         //If in EDIT mode, add the id we got onInit and use that later to find the index of item we want to edit.
         const entryToEdit = {
@@ -99,18 +108,19 @@ export class EntryFormComponent implements OnInit {
           description: this.form.value['description'],
         };
 
-        this.entries
+        const sub = this.entries
           .updateEntry$(entryToEdit)
           .pipe(
-            tap((id: string) => (createdEntity = id)),
             catchError((err) => {
               this.errorMsg = err; //pass to error msg svc or maybe a banner on page?
               return EMPTY;
             })
-          ).subscribe();
-      }
+          ).subscribe(entity => entityId = entity);
 
-      this.router.navigate([`entries/${createdEntity}`]); //navigate to the newly created entity
+          this.subscriptions.push(sub);
+        }
+
+      this.router.navigate([`entries/${entityId}`]); //navigate to the newly created entity
     } else {
       this.validateFields(this.form);
     }

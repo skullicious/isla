@@ -7,10 +7,8 @@ import { EntryDetailComponent } from './entry-detail/entry-detail.component';
 import { SharedModule } from '../shared/shared.module';
 import { EntryFormComponent } from './entry-form/entry-form.component';
 
-import {MatSortModule} from '@angular/material/sort';
-
 @NgModule({
   declarations: [EntriesListComponent, EntryDetailComponent, EntryFormComponent],
-  imports: [CommonModule, EntriesRoutingModule, SharedModule, MatSortModule ],
+  imports: [CommonModule, EntriesRoutingModule, SharedModule]
 })
 export class EntriesModule {}
