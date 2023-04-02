@@ -2,12 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { EntriesService } from 'src/app/shared/services/entries.service';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { IslaEntry } from 'src/app/shared/types/IslaEntry';
 import { TestScheduler } from 'rxjs/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+
 
 
 import { EntryFormComponent } from './entry-form.component';
@@ -59,164 +59,166 @@ describe('EntryFormComponent', () => {
   describe('Marbles tests', () => {
     let testScheduler: TestScheduler;
   
-    beforeEach(() => {
-      testScheduler = new TestScheduler((actual, expected) =>
-        expect(actual).toEqual(expected)
-      );
-    });
+      beforeEach(() => {
+        testScheduler = new TestScheduler((actual, expected) =>
+          expect(actual).toEqual(expected)
+        );
+      });
 
-    it('createEntry$ should return entity ID', () => {
-      const createEntrySpy = spyOn(entriesService, 'createEntry$').and.returnValue(of('666'));
-      const entryToAdd = mockIslaEntry;
-      const expectedEntityId = '666';
-  
-      testScheduler.run(({ expectObservable }) => {
-        const output = '(a|)';
-        const expected = { a: expectedEntityId };                                                          
-  
-        expectObservable(entriesService.createEntry$(entryToAdd)).toBe(output, expected);
+      it('createEntry$ should return entity ID', () => {
+        const createEntrySpy = spyOn(entriesService, 'createEntry$').and.returnValue(of('666'));
+        const entryToAdd = mockIslaEntry;
+        const expectedEntityId = '666';
+    
+        testScheduler.run(({ expectObservable }) => {
+          const output = '(a|)';
+          const expected = { a: expectedEntityId };                                                          
+    
+          expectObservable(entriesService.createEntry$(entryToAdd)).toBe(output, expected);
+        });
+        
+        expect(createEntrySpy).toHaveBeenCalledOnceWith(entryToAdd);
+        expect(component.errorMsg).toBe('');
+      });
+
+      it('updateEntry$ should return entity ID', () => {
+        const updateEntrySpy = spyOn(entriesService, 'updateEntry$').and.callThrough();
+        const entryToEdit = mockIslaEntry;
+        const expectedEntityId = '666';
+        
+        testScheduler.run(({ expectObservable }) => {
+          const output = '(a|)';
+          const expected = { a: expectedEntityId };                                                          
+          
+          expectObservable(entriesService.updateEntry$(entryToEdit)).toBe(output, expected);
+        });
+        
+        expect(updateEntrySpy).toHaveBeenCalledOnceWith(entryToEdit);
+        expect(component.errorMsg).toBe('');
       });
       
-      expect(createEntrySpy).toHaveBeenCalledOnceWith(entryToAdd);
-      expect(component.errorMsg).toBe('');
-    });
-
-    // fit('createEntry$ should handle error', () => {
-    //   const createEntrySpy = spyOn(entriesService, 'createEntry$').and.returnValue(throwError('error'));
-    //   const entryToAdd = mockIslaEntry;
-    //   const expectedError = 'Error: BANG!';
-  
-    //   testScheduler.run(({ expectObservable }) => {
-    //     const output = '#';
-    //     const expected = { a: expectedError };                                                          
-  
-    //     expectObservable(entriesService.createEntry$(entryToAdd)).toBe(output, expected);
-    //   });
-      
-    //   expect(createEntrySpy).toHaveBeenCalledOnceWith(entryToAdd);
-    //   // expect(component.errorMsg).toBe('Error: BANG!');
-    // });
-  
-    it('updateEntry$ should return entity ID', () => {
-      const updateEntrySpy = spyOn(entriesService, 'updateEntry$').and.callThrough();
-      const entryToEdit = mockIslaEntry;
-      const expectedEntityId = '666';
-  
-      testScheduler.run(({ expectObservable }) => {
-        const output = '(a|)';
-        const expected = { a: expectedEntityId };                                                          
-  
-        expectObservable(entriesService.updateEntry$(entryToEdit)).toBe(output, expected);
+      it('getEntryById$ should return isla entry', () => {
+        
+        const getEntryByIdSpy = spyOn(entriesService, 'getEntryById$').and.returnValue(of(mockIslaEntry));
+        
+        const expectedEntityId = '666';
+        
+        testScheduler.run(({ expectObservable }) => {
+          const output = '(a|)';
+          const expected = { a: mockIslaEntry };       
+          
+          expectObservable(entriesService.getEntryById$(expectedEntityId)).toBe(output, expected);
+        });
+        
+        expect(getEntryByIdSpy).toHaveBeenCalledOnceWith('666');
+        expect(component.errorMsg).toBe('');
       });
-      
-      expect(updateEntrySpy).toHaveBeenCalledOnceWith(entryToEdit);
-      expect(component.errorMsg).toBe('');
-    });
 
-    // fit('updateEntry$ should handle error', () => {
-    //   const updateEntrySpy = spyOn(entriesService, 'updateEntry$').and.returnValue(throwError('error'));
-    //   const entryToAdd = mockIslaEntry;
-    //   const expectedError = 'Error: BANG!';
-  
-    //   testScheduler.run(({ expectObservable }) => {
-    //     const output = '#';
-    //     const expected = { a: expectedError };                                                          
-  
-    //     expectObservable(entriesService.createEntry$(entryToAdd)).toBe(output, expected);
-    //   });
-      
-    //   expect(updateEntrySpy).toHaveBeenCalledOnceWith(entryToAdd);
-    //   // expect(component.errorMsg).toBe('Error: BANG!');
-    // });
+      // it('updateEntry$ should handle error', () => {
+      //     const updateEntrySpy = spyOn(entriesService, 'updateEntry$').and.returnValue(throwError('error'));
+      //     const entryToUpdate = mockIslaEntry;
+      //     const expectedError = 'Error: BANG!';
+        
+      //     testScheduler.run(({ expectObservable }) => {
+      //         const output = '#';
+      //         const expected = { a: expectedError };                                                          
+          
+      //         expectObservable(entriesService.updateEntry$(entryToUpdate)).toBe(output, expected);
+      //       });
+          
+      //       expect(updateEntrySpy).toHaveBeenCalledOnceWith(entryToUpdate);
+      //       // expect(component.errorMsg).toBe('Error: BANG!');  //need to add some error handling in service calls to throw errors up
+      //     });
+          
+        // it('createEntry$ should handle error', () => {
+        //     const createEntrySpy = spyOn(entriesService, 'createEntry$').and.returnValue(throwError('error'));
+        //     const entryToAdd = mockIslaEntry;
+        //     const expectedError = 'Error: BANG!';
+        
+        //     testScheduler.run(({ expectObservable }) => {
+        //       const output = '#';
+        //       const expected = { a: expectedError };                                                          
+        
+        //       expectObservable(entriesService.createEntry$(entryToAdd)).toBe(output, expected);
+        //     });
+            
+        //     expect(createEntrySpy).toHaveBeenCalledOnceWith(entryToAdd);
+        //     // expect(component.errorMsg).toBe('Error: BANG!'); //need to add some error handling in service calls to throw errors up
+        //   });
+        
+          
+          // it('getEntryById$ should handle error', () => {
+          //   const getEntryByIdSpy = spyOn(entriesService, 'getEntryById$').and.returnValue(throwError('error'));
+          //   const expectedError = 'Error: BANG!';
+          //   const expectedEntityId = '666';
+            
+          //   testScheduler.run(({ expectObservable }) => {
+          //     const output = '#';
+          //     const expected = { a: expectedError };       
+              
+          //     expectObservable(entriesService.getEntryById$(expectedEntityId)).toBe(output, expected);
+          //   });
+            
+          //   expect(getEntryByIdSpy).toHaveBeenCalledOnceWith('666');
+          //   //expect(component.errorMsg).toBe('Error: Error: no entry found'); //need to add some error handling in service calls to throw errors up
+          // });
+        });
+        //not sure about the testscheduler/marbles tests but had a go at them...
 
-    it('getEntryById$ should return isla entry', () => {
-
-      const getEntryByIdSpy = spyOn(entriesService, 'getEntryById$').and.returnValue(of(mockIslaEntry));
-     
-      const expectedEntityId = '666';
-  
-      testScheduler.run(({ expectObservable }) => {
-        const output = '(a|)';
-        const expected = { a: mockIslaEntry };       
-  
-        expectObservable(entriesService.getEntryById$(expectedEntityId)).toBe(output, expected);
-      });
-      
-      expect(getEntryByIdSpy).toHaveBeenCalledOnceWith('666');
-      expect(component.errorMsg).toBe('');
-    });
-
-    // fit('getEntryById$ should handle error', () => {
-    //   const getEntryByIdSpy = spyOn(entriesService, 'getEntryById$').and.returnValue(throwError('error'));
-     
-    //   const expectedEntityId = '666';
-  
-    //   testScheduler.run(({ expectObservable }) => {
-    //     const output = '#';
-    //     const expected = { a: mockIslaEntry };       
-  
-    //     expectObservable(entriesService.getEntryById$(expectedEntityId)).toBe(output, expected);
-    //   });
-      
-    //   expect(getEntryByIdSpy).toHaveBeenCalledOnceWith('666');
-    //   expect(component.errorMsg).toBe('');
-    // });
-  });
-
-
-  describe('forms', () => {  
-
-    it('should add new entry then navigate to details page in create mode', () => {
-      spyOn(entriesService, 'createEntry$').and.returnValue(of('666')); //needs to return so can nav
-      component.isNew = true;
-      component.form.patchValue({ title: 'test', description: 'description' });
-
-      component.submit();
-
-      expect(entriesService.createEntry$).toHaveBeenCalledWith({ title: 'test', description: 'description' } as IslaEntry);
-      expect(router.navigate).toHaveBeenCalledWith(['entries/666']);
-    });
-
-
-    it('on getEntryById should get entry by id and populate form in edit mode', () => {
-      
-      spyOn(entriesService, 'getEntryById$').and.returnValue(of(mockIslaEntry));
-
-      component.ngOnInit();
-
-      expect(entriesService.getEntryById$).toHaveBeenCalledWith('666');
-      expect(component.isNew).toBe(false);
-      expect(component.islaEntryToEdit).toEqual(mockIslaEntry);
-      expect(component.form.value.title).toEqual(mockIslaEntry.title);
-      expect(component.form.value.description).toEqual(mockIslaEntry.description);
-    });  
-  });
-
-  describe('hasRequiredError', () => {
-
-    it('should return FALSE if field does not exist', () => {
-      const fieldName = 'non-existent-field';
-      expect(component.hasRequiredError(fieldName)).toBeFalse();
-    });
-
-    it('should return TRUE if a field has required error', () => {
-      const fieldName = 'title';
-      component.form.controls[fieldName].setErrors({ required: true });
-      expect(component.hasRequiredError(fieldName)).toBeTrue();
-    });
-
-    it('should return FALSE if a field does NOT have required error', () => {
-      const fieldName = 'title';
-      component.form.controls[fieldName].setErrors({ required: false });
-      expect(component.hasRequiredError(fieldName)).toBeFalse();
-    });
-
-    it('should return TRUE if a field has required error', () => {
-      const fieldName = 'title';
-      component.form.controls[fieldName].setErrors({ required: true });
-      expect(component.hasRequiredError(fieldName)).toBeTrue();
-    });
-
+        
+        describe('forms', () => {  
+          
+          it('should add new entry then navigate to details page in create mode', () => {
+            spyOn(entriesService, 'createEntry$').and.returnValue(of('666')); //needs to return so can nav
+            component.isNew = true;
+            component.form.patchValue({ title: 'test', description: 'description' });
+            
+            component.submit();
+            
+            expect(entriesService.createEntry$).toHaveBeenCalledWith({ title: 'test', description: 'description' } as IslaEntry);
+            expect(router.navigate).toHaveBeenCalledWith(['entries/666']);
+          });
+          
+          
+          it('on getEntryById should get entry by id and populate form in edit mode', () => {
+            
+            spyOn(entriesService, 'getEntryById$').and.returnValue(of(mockIslaEntry));
+            
+            component.ngOnInit();
+            
+            expect(entriesService.getEntryById$).toHaveBeenCalledWith('666');
+            expect(component.isNew).toBe(false);
+            expect(component.islaEntryToEdit).toEqual(mockIslaEntry);
+            expect(component.form.value.title).toEqual(mockIslaEntry.title);
+            expect(component.form.value.description).toEqual(mockIslaEntry.description);
+          });  
+        });
+        
+        describe('hasRequiredError', () => {
+          
+          it('should return FALSE if field does not exist', () => {
+            const fieldName = 'non-existent-field';
+            expect(component.hasRequiredError(fieldName)).toBeFalse();
+          });
+          
+          it('should return TRUE if a field has required error', () => {
+            const fieldName = 'title';
+            component.form.controls[fieldName].setErrors({ required: true });
+            expect(component.hasRequiredError(fieldName)).toBeTrue();
+          });
+          
+          it('should return FALSE if a field does NOT have required error', () => {
+            const fieldName = 'title';
+            component.form.controls[fieldName].setErrors({ required: false });
+            expect(component.hasRequiredError(fieldName)).toBeFalse();
+          });
+          
+          it('should return TRUE if a field has required error', () => {
+            const fieldName = 'title';
+            component.form.controls[fieldName].setErrors({ required: true });
+            expect(component.hasRequiredError(fieldName)).toBeTrue();
+          });
+          
     it('should return FALSE if a field does NOT have required error', () => {
       const fieldName = 'title';
       component.form.controls[fieldName].setErrors({ required: false });

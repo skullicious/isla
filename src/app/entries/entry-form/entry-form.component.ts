@@ -98,7 +98,7 @@ export class EntryFormComponent implements OnInit, OnDestroy {
         this.subscriptions.push(sub);
       } else {
         //If in EDIT mode, add the id we got onInit and use that later to find the index of item we want to edit.
-        const entryToEdit = {
+        const entryToEdit: IslaEntry = {
           ...this.islaEntryToEdit, //get item as returned from obs
           id: this.id!, // replace required fields
           title: this.form.value['title'], // would loop through if a bigger form but doesnt seem worth it
