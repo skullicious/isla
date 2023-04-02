@@ -2,10 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { EntriesService } from 'src/app/shared/services/entries.service';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { IslaEntry } from 'src/app/shared/types/IslaEntry';
+import { TestScheduler } from 'rxjs/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+
 
 import { EntryFormComponent } from './entry-form.component';
 
@@ -37,7 +40,7 @@ describe('EntryFormComponent', () => {
     .compileComponents();
   });
 
-  const islaEntry: IslaEntry = { id: '666', title: 'test', description: 'description', createdAt: new Date() };
+  const mockIslaEntry: IslaEntry = { id: '666', title: 'test', description: 'description', createdAt: new Date() };
 
   beforeEach(() => {
     fixture = TestBed.createComponent(EntryFormComponent);
@@ -51,6 +54,113 @@ describe('EntryFormComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('Marbles tests', () => {
+    let testScheduler: TestScheduler;
+  
+    beforeEach(() => {
+      testScheduler = new TestScheduler((actual, expected) =>
+        expect(actual).toEqual(expected)
+      );
+    });
+
+    it('createEntry$ should return entity ID', () => {
+      const createEntrySpy = spyOn(entriesService, 'createEntry$').and.returnValue(of('666'));
+      const entryToAdd = mockIslaEntry;
+      const expectedEntityId = '666';
+  
+      testScheduler.run(({ expectObservable }) => {
+        const output = '(a|)';
+        const expected = { a: expectedEntityId };                                                          
+  
+        expectObservable(entriesService.createEntry$(entryToAdd)).toBe(output, expected);
+      });
+      
+      expect(createEntrySpy).toHaveBeenCalledOnceWith(entryToAdd);
+      expect(component.errorMsg).toBe('');
+    });
+
+    // fit('createEntry$ should handle error', () => {
+    //   const createEntrySpy = spyOn(entriesService, 'createEntry$').and.returnValue(throwError('error'));
+    //   const entryToAdd = mockIslaEntry;
+    //   const expectedError = 'Error: BANG!';
+  
+    //   testScheduler.run(({ expectObservable }) => {
+    //     const output = '#';
+    //     const expected = { a: expectedError };                                                          
+  
+    //     expectObservable(entriesService.createEntry$(entryToAdd)).toBe(output, expected);
+    //   });
+      
+    //   expect(createEntrySpy).toHaveBeenCalledOnceWith(entryToAdd);
+    //   // expect(component.errorMsg).toBe('Error: BANG!');
+    // });
+  
+    it('updateEntry$ should return entity ID', () => {
+      const updateEntrySpy = spyOn(entriesService, 'updateEntry$').and.callThrough();
+      const entryToEdit = mockIslaEntry;
+      const expectedEntityId = '666';
+  
+      testScheduler.run(({ expectObservable }) => {
+        const output = '(a|)';
+        const expected = { a: expectedEntityId };                                                          
+  
+        expectObservable(entriesService.updateEntry$(entryToEdit)).toBe(output, expected);
+      });
+      
+      expect(updateEntrySpy).toHaveBeenCalledOnceWith(entryToEdit);
+      expect(component.errorMsg).toBe('');
+    });
+
+    // fit('updateEntry$ should handle error', () => {
+    //   const updateEntrySpy = spyOn(entriesService, 'updateEntry$').and.returnValue(throwError('error'));
+    //   const entryToAdd = mockIslaEntry;
+    //   const expectedError = 'Error: BANG!';
+  
+    //   testScheduler.run(({ expectObservable }) => {
+    //     const output = '#';
+    //     const expected = { a: expectedError };                                                          
+  
+    //     expectObservable(entriesService.createEntry$(entryToAdd)).toBe(output, expected);
+    //   });
+      
+    //   expect(updateEntrySpy).toHaveBeenCalledOnceWith(entryToAdd);
+    //   // expect(component.errorMsg).toBe('Error: BANG!');
+    // });
+
+    it('getEntryById$ should return isla entry', () => {
+
+      const getEntryByIdSpy = spyOn(entriesService, 'getEntryById$').and.returnValue(of(mockIslaEntry));
+     
+      const expectedEntityId = '666';
+  
+      testScheduler.run(({ expectObservable }) => {
+        const output = '(a|)';
+        const expected = { a: mockIslaEntry };       
+  
+        expectObservable(entriesService.getEntryById$(expectedEntityId)).toBe(output, expected);
+      });
+      
+      expect(getEntryByIdSpy).toHaveBeenCalledOnceWith('666');
+      expect(component.errorMsg).toBe('');
+    });
+
+    // fit('getEntryById$ should handle error', () => {
+    //   const getEntryByIdSpy = spyOn(entriesService, 'getEntryById$').and.returnValue(throwError('error'));
+     
+    //   const expectedEntityId = '666';
+  
+    //   testScheduler.run(({ expectObservable }) => {
+    //     const output = '#';
+    //     const expected = { a: mockIslaEntry };       
+  
+    //     expectObservable(entriesService.getEntryById$(expectedEntityId)).toBe(output, expected);
+    //   });
+      
+    //   expect(getEntryByIdSpy).toHaveBeenCalledOnceWith('666');
+    //   expect(component.errorMsg).toBe('');
+    // });
   });
 
 
@@ -70,15 +180,15 @@ describe('EntryFormComponent', () => {
 
     it('on getEntryById should get entry by id and populate form in edit mode', () => {
       
-      spyOn(entriesService, 'getEntryById$').and.returnValue(of(islaEntry));
+      spyOn(entriesService, 'getEntryById$').and.returnValue(of(mockIslaEntry));
 
       component.ngOnInit();
 
       expect(entriesService.getEntryById$).toHaveBeenCalledWith('666');
       expect(component.isNew).toBe(false);
-      expect(component.islaEntryToEdit).toEqual(islaEntry);
-      expect(component.form.value.title).toEqual(islaEntry.title);
-      expect(component.form.value.description).toEqual(islaEntry.description);
+      expect(component.islaEntryToEdit).toEqual(mockIslaEntry);
+      expect(component.form.value.title).toEqual(mockIslaEntry.title);
+      expect(component.form.value.description).toEqual(mockIslaEntry.description);
     });  
   });
 
@@ -176,6 +286,6 @@ describe('EntryFormComponent', () => {
     });
   })  
 
-  // Was going to try some marbles tests here to test for errors but wasnt sure if you'd want me to 
+  // Was going to try some marbles tests here to test the observables etc but wasnt sure if you'd want me to 
   // import packages or if you handled that kind of stuff with test scheduler /async etc.
 });
