@@ -36,7 +36,8 @@ export class EntryFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.id = this.route.snapshot.params['id'];
-    this.isNew = !this.id;
+
+    this.isNew = this.id === undefined ? true : false;
 
     this.form = this.fb.group({
       title: ['', Validators.required], //https://blog.logrocket.com/angular-formbuilder-reactive-form-validation/#whatisformvalidationinangular
