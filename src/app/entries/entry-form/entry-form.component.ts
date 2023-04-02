@@ -1,7 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { Validators } from '@angular/forms';
-import { FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl  } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, EMPTY, first, Subscription} from 'rxjs';
 import { EntriesService } from '../../../../src/app/shared/services/entries.service';
@@ -71,7 +69,7 @@ export class EntryFormComponent implements OnInit, OnDestroy {
   }
 
   validateFields(formGroup: FormGroup) {
-    Object.keys(formGroup.controls).forEach(field => {  //fixed flaky submit
+    Object.keys(formGroup.controls).forEach(field => {
       const control = formGroup.get(field);
       if (control instanceof FormControl) {
         control.markAsTouched({ onlySelf: true });
