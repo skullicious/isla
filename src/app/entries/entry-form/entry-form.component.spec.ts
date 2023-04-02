@@ -9,7 +9,7 @@ import { IslaEntry } from 'src/app/shared/types/IslaEntry';
 
 import { EntryFormComponent } from './entry-form.component';
 
-fdescribe('EntryFormComponent', () => {
+describe('EntryFormComponent', () => {
   let component: EntryFormComponent;
   let fixture: ComponentFixture<EntryFormComponent>;
   let formBuilder: FormBuilder;
@@ -175,4 +175,7 @@ fdescribe('EntryFormComponent', () => {
       expect(router.navigate).toHaveBeenCalled();
     });
   })  
+
+  // Was going to try some marbles tests here to test for errors but wasnt sure if you'd want me to 
+  // import packages or if you handled that kind of stuff with test scheduler /async etc.
 });
