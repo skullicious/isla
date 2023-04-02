@@ -58,7 +58,7 @@ export class EntryFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  public hasErrors(fieldName: string): boolean {
+   hasErrors(fieldName: string): boolean {
     return (
       this.form.controls[fieldName]?.invalid &&
       (this.form.controls[fieldName]?.dirty ||
@@ -66,7 +66,7 @@ export class EntryFormComponent implements OnInit, OnDestroy {
     );
   }
 
-  public hasRequiredError(fieldName: string): boolean {
+  hasRequiredError(fieldName: string): boolean {
     return this.form.controls[fieldName].errors?.['required'] === true;
   }
 
@@ -75,8 +75,6 @@ export class EntryFormComponent implements OnInit, OnDestroy {
       const control = formGroup.get(field);
       if (control instanceof FormControl) {
         control.markAsTouched({ onlySelf: true });
-      } else if (control instanceof FormGroup) {
-        this.validateFields(control);      
       }
     });
   }
@@ -87,7 +85,7 @@ export class EntryFormComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       let entityId = '';
 
-      if (this.isNew) {
+      if (this.isNew) {        
         //If new, add the item as normal
         const sub = this.entries
           .createEntry$(this.form.value)
@@ -119,7 +117,6 @@ export class EntryFormComponent implements OnInit, OnDestroy {
 
           this.subscriptions.push(sub);
         }
-
       this.router.navigate([`entries/${entityId}`]); //navigate to the newly created entity
     } else {
       this.validateFields(this.form);
