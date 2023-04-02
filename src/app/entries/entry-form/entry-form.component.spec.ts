@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -82,7 +82,43 @@ fdescribe('EntryFormComponent', () => {
     });  
   });
 
+  describe('hasRequiredError', () => {
+
+    it('should return FALSE if field does not exist', () => {
+      const fieldName = 'non-existent-field';
+      expect(component.hasRequiredError(fieldName)).toBeFalse();
+    });
+
+    it('should return TRUE if a field has required error', () => {
+      const fieldName = 'title';
+      component.form.controls[fieldName].setErrors({ required: true });
+      expect(component.hasRequiredError(fieldName)).toBeTrue();
+    });
+
+    it('should return FALSE if a field does NOT have required error', () => {
+      const fieldName = 'title';
+      component.form.controls[fieldName].setErrors({ required: false });
+      expect(component.hasRequiredError(fieldName)).toBeFalse();
+    });
+
+    it('should return TRUE if a field has required error', () => {
+      const fieldName = 'title';
+      component.form.controls[fieldName].setErrors({ required: true });
+      expect(component.hasRequiredError(fieldName)).toBeTrue();
+    });
+
+    it('should return FALSE if a field does NOT have required error', () => {
+      const fieldName = 'title';
+      component.form.controls[fieldName].setErrors({ required: false });
+      expect(component.hasRequiredError(fieldName)).toBeFalse();
+    });
+  })
+
   describe('validation', () => {
+
+    // tried  some unit tests by approaching it using querySelector and changing the values,  
+    // emitting the input and fixture.detectChanges() but for some reason it always though the for was valid?
+    // seemed to be an issue with waiting for fixture.whenStable().then().... 
 
       it('should return valid if title is empty', () => {
       component.form.setValue({

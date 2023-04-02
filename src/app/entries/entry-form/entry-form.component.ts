@@ -67,7 +67,7 @@ export class EntryFormComponent implements OnInit, OnDestroy {
   }
 
   hasRequiredError(fieldName: string): boolean {
-    return this.form.controls[fieldName].errors?.['required'] === true;
+    return this.form.controls[fieldName]?.errors?.['required'] === true;
   }
 
   validateFields(formGroup: FormGroup) {
