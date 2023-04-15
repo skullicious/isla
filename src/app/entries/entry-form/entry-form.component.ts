@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl  } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, EMPTY, first, Subscription} from 'rxjs';
+import { catchError, EMPTY, first, Observable, Subscription, tap} from 'rxjs';
 import { EntriesService } from '../../../../src/app/shared/services/entries.service';
 import { IslaEntry } from '../../../../src/app/shared/types/IslaEntry';
 
@@ -18,6 +18,12 @@ export class EntryFormComponent implements OnInit, OnDestroy {
   isNew = false;
 
   islaEntryToEdit!: IslaEntry;
+
+  islaEntryToEdit$: Observable<IslaEntry> | undefined;
+
+  createdEntry$: Observable<string> | undefined;
+
+  editedEntry$: Observable<string> | undefined;
 
   options = this.route.snapshot.params['id']; //if there is an id being passed we are editing
 
@@ -46,16 +52,15 @@ export class EntryFormComponent implements OnInit, OnDestroy {
 
     if (!this.isNew && this.id) {
       //if in edit mode we are going to use the getEntry by id observable
-      const sub = this.entries
-        .getEntryById$(this.id) // and populate the data
-        .pipe(first())
-        .subscribe((islaEntry) => {
-          this.islaEntryToEdit = islaEntry;
-          return this.form.patchValue(islaEntry);
-        });
-      this.subscriptions.push(sub);
+    this.islaEntryToEdit$ = this.entries
+      .getEntryById$(this.id) // and populate the data
+      .pipe(
+        first(),
+        tap(islaEntry => {
+          this.form.patchValue(islaEntry);
+        })
+      )}
     }
-  }
 
    hasErrors(fieldName: string): boolean {
     return (
@@ -79,44 +84,28 @@ export class EntryFormComponent implements OnInit, OnDestroy {
   }
 
   submit() {
-    //https://loiane.com/2017/08/angular-reactive-forms-trigger-validation-on-submit/
-
     if (this.form.valid) {
       let entityId = '';
 
       if (this.isNew) {        
-        //If new, add the item as normal
-        const sub = this.entries
+        this.createdEntry$ = this.entries
           .createEntry$(this.form.value)
           .pipe(
-            catchError((err) => {
-              this.errorMsg = err; //pass to error msg svc or maybe a banner on page?
-              return EMPTY;
-            })
-          ).subscribe(entity => entityId = entity);
-
-        this.subscriptions.push(sub);
+            tap(entity => this.router.navigate([`entries/${entity}`]))
+          )
       } else {
-        //If in EDIT mode, add the id we got onInit and use that later to find the index of item we want to edit.
         const entryToEdit: IslaEntry = {
-          ...this.islaEntryToEdit, //get item as returned from obs
-          id: this.id!, // replace required fields
-          title: this.form.value['title'], // would loop through if a bigger form but doesnt seem worth it
+          ...this.islaEntryToEdit,
+          id: this.id!,
+          title: this.form.value['title'],
           description: this.form.value['description'],
         };
 
-        const sub = this.entries
+        this.editedEntry$ = this.entries
           .updateEntry$(entryToEdit)
           .pipe(
-            catchError((err) => {
-              this.errorMsg = err; //pass to error msg svc or maybe a banner on page?
-              return EMPTY;
-            })
-          ).subscribe(entity => entityId = entity);
-
-          this.subscriptions.push(sub);
-        }
-      this.router.navigate([`entries/${entityId}`]); //navigate to the newly created entity
+            tap(entity => this.router.navigate([`entries/${entity}`]))
+          )} 
     } else {
       this.validateFields(this.form);
     }

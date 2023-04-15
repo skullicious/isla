@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, delay, EMPTY, map, Observable, of, throwError } from 'rxjs';
 import { IslaEntry } from '../types/IslaEntry';
 
 @Injectable({
@@ -63,7 +63,8 @@ export class EntriesService {
   createEntry$(entry: IslaEntry) {
     const newEntry = { ...entry, id: this.generateId(), createdAt: new Date() };
     this.entries$.next([...this.entries$.value, newEntry]);
-    return of(newEntry.id);
+    console.log('in create')
+    return of(newEntry.id).pipe(delay(5000));
   }
 
   updateEntry$(entry: IslaEntry) {
@@ -75,7 +76,7 @@ export class EntriesService {
     newEntries[entryIndex] = newEntry;
     
     this.entries$.next([...newEntries]);
-    return of(newEntry.id);
+    return of(newEntry.id).pipe(delay(5000));
   }
 
 
@@ -83,16 +84,28 @@ export class EntriesService {
     return this.getEntries$().pipe(
       map((entries) => entries.find((entry) => entry.id === entryId)),
       map((entry) => {
-        if (!entry) {
+        if (!entry) {          
           throw new Error('no entry found');
         }
         return entry;
+      }),
+      catchError(err => {
+        this.handleError(err);
+        return EMPTY;
       })
     );
   }
 
   getEntries$(): Observable<IslaEntry[]> {
     return this.entries$.asObservable();
+  }
+
+  private handleError(err: string): Observable<never> {  
+    
+    let errorMessage: string;
+   
+    console.error(err, 'handling error?');
+    return throwError(() => err);
   }
 
   private generateId() {

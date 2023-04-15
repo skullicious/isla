@@ -37,3 +37,7 @@
     <mat-card-actions> </mat-card-actions>
   </mat-card> 
 </ng-container>
+
+<ng-container *ngIf="islaEntryToEdit$ | async"></ng-container>
+<ng-container *ngIf="editedEntry$ | async"></ng-container>
+<ng-container *ngIf="createdEntry$ | async"></ng-container>
