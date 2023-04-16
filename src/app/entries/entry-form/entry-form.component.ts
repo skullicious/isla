@@ -27,16 +27,6 @@ export class EntryFormComponent implements OnInit, OnDestroy {
 
   testErrors$: Observable<string> | undefined;
 
-  // testErrors$ = this.createdEntry$.pipe(
-  //   //ignoreElements(),
-  //   tap(x => console.log(x, 'xxxx')),
-  //   catchError((err) => of(err))
-  // )
-
- 
-  
-
-
   options = this.route.snapshot.params['id']; //if there is an id being passed we are editing
 
   private subscriptions: Subscription[] = [];
@@ -105,8 +95,8 @@ export class EntryFormComponent implements OnInit, OnDestroy {
           .pipe(
             tap(entity => this.router.navigate([`entries/${entity}`])),
             catchError(error => {
-              this.errorMsg = 'ERROR IN SUBMIT- DID THIS WORK?';
-              return throwError(() => new Error(`Error thrown in submit:${error}`));
+              this.testErrors$ = of(error);
+              return EMPTY;
             })
           )        
       } else {
@@ -120,7 +110,11 @@ export class EntryFormComponent implements OnInit, OnDestroy {
         this.editedEntry$ = this.entries
           .updateEntry$(entryToEdit)
           .pipe(
-            tap(entity => this.router.navigate([`entries/${entity}`]))
+            tap(entity => this.router.navigate([`entries/${entity}`])),
+            catchError(error => {
+              this.testErrors$ = of(error);
+              return EMPTY;
+            })
           )} 
     } else {
       this.validateFields(this.form);

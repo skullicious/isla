@@ -9,8 +9,8 @@
     <div class="errors">{{errorMsg}}</div>
   </ng-container> -->
 
-  <ng-container *ngIf="testErrors$ | async as testError">
-    <div class="errors">{{testError}}</div>
+  <ng-container *ngIf="testErrors$ | async">
+    <h1 class="errors">testError$</h1>
   </ng-container>
 
   <mat-card class="example-card">
