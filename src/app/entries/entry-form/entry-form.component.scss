@@ -11,6 +11,12 @@ form {
   flex-direction: column;
 }
 
+.errors {
+  height: 100px;
+  background-color: #f44336;
+  color: white;
+}
+
 .isla-error-container { 
   color: #f44336;
   height: 2.34375em;                  //used a container which reserved the space instead to stop popping and make form feel more solid

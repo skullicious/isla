@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, delay, EMPTY, map, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, delay, EMPTY, map, Observable, of, tap, throwError } from 'rxjs';
 import { IslaEntry } from '../types/IslaEntry';
 
 @Injectable({
@@ -60,11 +60,17 @@ export class EntriesService {
 
   constructor() {}
 
+  
+
   createEntry$(entry: IslaEntry) {
     const newEntry = { ...entry, id: this.generateId(), createdAt: new Date() };
     this.entries$.next([...this.entries$.value, newEntry]);
-    console.log('in create')
-    return of(newEntry.id).pipe(delay(5000));
+    return of(newEntry.id).pipe(
+      delay(2000),
+      tap(() => {
+        throw new Error('Error in service')
+      }
+      ));
   }
 
   updateEntry$(entry: IslaEntry) {

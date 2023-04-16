@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl  } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, EMPTY, first, Observable, Subscription, tap} from 'rxjs';
+import { catchError, EMPTY, first, ignoreElements, Observable, of, Subscription, tap, throwError} from 'rxjs';
 import { EntriesService } from '../../../../src/app/shared/services/entries.service';
 import { IslaEntry } from '../../../../src/app/shared/types/IslaEntry';
 
@@ -21,9 +21,21 @@ export class EntryFormComponent implements OnInit, OnDestroy {
 
   islaEntryToEdit$: Observable<IslaEntry> | undefined;
 
-  createdEntry$: Observable<string> | undefined;
+  createdEntry$ = new Observable<string>(); //?
 
   editedEntry$: Observable<string> | undefined;
+
+  testErrors$: Observable<string> | undefined;
+
+  // testErrors$ = this.createdEntry$.pipe(
+  //   //ignoreElements(),
+  //   tap(x => console.log(x, 'xxxx')),
+  //   catchError((err) => of(err))
+  // )
+
+ 
+  
+
 
   options = this.route.snapshot.params['id']; //if there is an id being passed we are editing
 
@@ -59,7 +71,7 @@ export class EntryFormComponent implements OnInit, OnDestroy {
         tap(islaEntry => {
           this.form.patchValue(islaEntry);
         })
-      )}
+      )}    
     }
 
    hasErrors(fieldName: string): boolean {
@@ -91,8 +103,12 @@ export class EntryFormComponent implements OnInit, OnDestroy {
         this.createdEntry$ = this.entries
           .createEntry$(this.form.value)
           .pipe(
-            tap(entity => this.router.navigate([`entries/${entity}`]))
-          )
+            tap(entity => this.router.navigate([`entries/${entity}`])),
+            catchError(error => {
+              this.errorMsg = 'ERROR IN SUBMIT- DID THIS WORK?';
+              return throwError(() => new Error(`Error thrown in submit:${error}`));
+            })
+          )        
       } else {
         const entryToEdit: IslaEntry = {
           ...this.islaEntryToEdit,
